@@ -32,6 +32,11 @@ extrusion :TopPanel do
     length thickness
     rectangle size: DECK_SIZE
 
+    # Notch the corners
+    repeat center:size/2, step:DECK_SIZE - Size[FRAME_KLASS.width, FRAME_KLASS.height], count:2 do
+        rectangle center:[0,0], size:[FRAME_KLASS.width, FRAME_KLASS.height]
+    end
+
     rectangle center:piston_cutout_center + Point[dump_slot_width/2, 0],
                 size:piston_cutout_size + Size[dump_slot_width, 0]
 

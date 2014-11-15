@@ -112,20 +112,21 @@ model :Ester do
 
     # Extrusion frame
     translate 0.375.cm, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
+        upper_height = 15.cm
         frame_size = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height]
         frame_spacing = Size[frame_size.x - FRAME_KLASS.width, frame_size.y - FRAME_KLASS.width, frame_size.z]
         frame_length = Size[frame_spacing.x - FRAME_KLASS.width, frame_spacing.y - FRAME_KLASS.width, frame_size.z]
 
         x_coordinates = [-frame_spacing.x/2, frame_spacing.x/2]
         y_coordinates = [-frame_spacing.y/2, frame_spacing.y/2]
-        z_coordinates = [-frame_size.z + FRAME_KLASS.height/2, -FRAME_KLASS.height/2]
+        z_coordinates = [-frame_size.z + FRAME_KLASS.height/2, -FRAME_KLASS.height/2, upper_height - FRAME_KLASS.height/2]
 
         # Vertical supports
         x_coordinates.product(y_coordinates) do |x,y|
-            push FRAME_KLASS, length:frame_length.z, origin:[x, y, -frame_size.z]
+            push FRAME_KLASS, length:frame_length.z + upper_height, origin:[x, y, -frame_size.z]
         end
 
-        # The front back rails under the bottom panel
+        # The front and back rails
         y_coordinates.product(z_coordinates) do |y,z|
             push FRAME_KLASS, length:frame_length.x, origin:[x_coordinates.first + FRAME_KLASS.width/2, y, z], x:-Z, y:Y
         end
@@ -137,21 +138,22 @@ model :Ester do
         push FRAME_KLASS, length:frame_length.y, origin:[0, frame_length.y/2, z_coordinates.first], x:-Z, y:X
 
         # Corner brackets
-        x_coordinates.product(y_coordinates) do |x,y|
-            if y > 0
-                push ExtrusionBracket, origin:[x, y - FRAME_KLASS.width/2, -FRAME_KLASS.height], x:-Z, y:X
-                push ExtrusionBracket, origin:[x, y - FRAME_KLASS.width/2, -frame_size.z + FRAME_KLASS.height + TopPanel.length], x:Z, y:-X
-            else
-                push ExtrusionBracket, origin:[x, y + FRAME_KLASS.width/2, -FRAME_KLASS.height], x:-Z, y:-X
-                push ExtrusionBracket, origin:[x, y + FRAME_KLASS.width/2, -frame_size.z + FRAME_KLASS.height + TopPanel.length], x:Z, y:X
-            end
+        bracket_z = [[-FRAME_KLASS.height, 1],
+                     [-frame_size.z + FRAME_KLASS.height + TopPanel.length, -1],
+                     [ upper_height - FRAME_KLASS.height, 1]]
+        x_coordinates.product(y_coordinates).product(bracket_z) do |(x,y),(z,sign)|
+            translate x, y, z do
+                if y > 0
+                    push ExtrusionBracket, origin:[0, -FRAME_KLASS.width/2, 0], x:-sign*Z, y:sign*X
+                else
+                    push ExtrusionBracket, origin:[0, FRAME_KLASS.width/2, 0], x:-sign*Z, y:-sign*X
+                end
 
-            if x > 0
-                push ExtrusionBracket, origin:[x - FRAME_KLASS.width/2, y, -FRAME_KLASS.height], x:-Z, y:-Y
-                push ExtrusionBracket, origin:[x - FRAME_KLASS.width/2, y, -frame_size.z + FRAME_KLASS.height + TopPanel.length], x:Z, y:Y
-            else
-                push ExtrusionBracket, origin:[x + FRAME_KLASS.width/2, y, -FRAME_KLASS.height], x:-Z, y:Y
-                push ExtrusionBracket, origin:[x + FRAME_KLASS.width/2, y, -frame_size.z + FRAME_KLASS.height + TopPanel.length], x:Z, y:-Y
+                if x > 0
+                    push ExtrusionBracket, origin:[-FRAME_KLASS.width/2, 0, 0], x:-sign*Z, y:-sign*Y
+                else
+                    push ExtrusionBracket, origin:[FRAME_KLASS.width/2, 0, 0], x:-sign*Z, y:sign*Y
+                end
             end
         end
     end
