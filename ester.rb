@@ -141,18 +141,20 @@ model :Ester do
                      [-frame_size.z + FRAME_KLASS.height + TopPanel.length, -1],
                      [ upper_height - FRAME_KLASS.height, 1]]
         x_coordinates.product(y_coordinates).product(bracket_z) do |(x,y),(z,sign)|
+            half_width = FRAME_KLASS.width/2
             translate x, y, z do
-                if y > 0
-                    push ExtrusionBracket, origin:[0, -FRAME_KLASS.width/2, 0], x:-sign*Z, y:sign*X
-                else
-                    push ExtrusionBracket, origin:[0, FRAME_KLASS.width/2, 0], x:-sign*Z, y:-sign*X
-                end
+                x_sign = (x <=> 0)
+                y_sign = (y <=> 0)
 
-                if x > 0
-                    push ExtrusionBracket, origin:[-FRAME_KLASS.width/2, 0, 0], x:-sign*Z, y:-sign*Y
-                else
-                    push ExtrusionBracket, origin:[FRAME_KLASS.width/2, 0, 0], x:-sign*Z, y:sign*Y
-                end
+                # The brackets on the short sides
+                push ExtrusionBracket, origin:[0, -y_sign*half_width, 0], x:-sign*Z, y:y_sign*sign*X
+                push M5x12Bolt, origin:[0, -y_sign*(half_width + 5.mm), -sign*25.mm], x:X, y:-y_sign*Z
+                push M5x16Bolt, origin:[0, -y_sign*(half_width + 25.mm), -sign*5.mm], x:X, y:sign*Y
+
+                # The brackets on the long sides
+                push ExtrusionBracket, origin:[-x_sign*half_width, 0, 0], x:-sign*Z, y:-x_sign*sign*Y
+                push M5x12Bolt, origin:[-x_sign*(half_width + 5.mm), 0, -sign*25.mm], x:-x_sign*Z, y:Y
+                push M5x16Bolt, origin:[-x_sign*(half_width + 25.mm), 0, -sign*5.mm], x:X, y:sign*Y
             end
         end
     end
@@ -189,11 +191,16 @@ model :Ester do
 
         # Bottom deck attachment bolts
         translate 0, 0, -Z_RAIL_LENGTH - BottomPanel.length + TopPanel.length do
+            # Ignore the holes that are for the corner brackets. Those bolts are handled elsewhere.
+            min, max = BottomPanel.side_bolt_holes.minmax_by(&:y)
             BottomPanel.side_bolt_holes.each do |center|
+                next if  (center.y == min.y) || (center.y == max.y)
                 push FlatWasher, origin:[*center, 0]
                 push M5x12Bolt, origin:[*center, FlatWasher.length], x:X, y:-Y
             end
+            min, max = BottomPanel.front_bolt_holes.minmax_by {|point| point.x}
             BottomPanel.front_bolt_holes.each do |center|
+                next if  (center.x == min.x) || (center.x == max.x)
                 push FlatWasher, origin:[*center, 0]
                 push M5x12Bolt, origin:[*center, FlatWasher.length], x:X, y:-Y
             end
