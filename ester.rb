@@ -16,10 +16,10 @@ PISTON_SIZE = Size[10.cm, 10.cm]
 
 FRAME_KLASS = TSlot20x20
 
-DECK_BORDER_LEFT = 6.975.cm
-DECK_BORDER_BOTTOM = 3.cm + MakerSlide.width + FRAME_KLASS.width
-DECK_BORDER_RIGHT = 8.cm - 0.275.cm
-DECK_BORDER_TOP = 5.cm + MakerSlide.width + FRAME_KLASS.width
+DECK_BORDER_LEFT = 10.cm
+DECK_BORDER_BOTTOM = 5.cm + MakerSlide.width + FRAME_KLASS.width
+DECK_BORDER_RIGHT = 10.cm
+DECK_BORDER_TOP = 7.cm + MakerSlide.width + FRAME_KLASS.width
 
 ACRYLIC_THICKNESS = 6.mm.cm    # The acrylic panels sold at the TechShop are 6mm thick
 PANEL_THICKNESS = 5.2.mm.cm
@@ -92,7 +92,7 @@ end
 
 model :Ester do
     translate [0, 0, 1.cm] do
-        translate [-TopPanel.piston_cutout_center.x, 0, 0] do
+        translate [-RAIL_LENGTH_X/2, 0, 0] do
             push MakerSlide, length:RAIL_LENGTH_X, origin:[RAIL_LENGTH_X, X_RAIL_BACK_Y, 0], x:-Y, y:Z
             push MakerSlide, length:RAIL_LENGTH_X, origin:[0, X_RAIL_FRONT_Y, 0], x:Y, y:Z
         end
@@ -111,7 +111,7 @@ model :Ester do
     end
 
     # Extrusion frame
-    translate 0.375.cm, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
+    translate 0, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
         upper_height = 15.cm
         frame_size = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height]
         frame_spacing = Size[frame_size.x - FRAME_KLASS.width, frame_size.y - FRAME_KLASS.width, frame_size.z]
