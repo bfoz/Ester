@@ -99,7 +99,7 @@ extrusion :BottomPanel do
     attr_reader thickness: ACRYLIC_THICKNESS
 
     s = DECK_SIZE.inset(FRAME_KLASS.width/2, FRAME_KLASS.width + 2.5.cm)
-    attr_reader side_bolt_holes: repeat(center:DECK_SIZE/2, step:[s.x/2, s.y/2], count:[3,3])
+    attr_reader side_bolt_holes: repeat(center:DECK_SIZE/2, step:[s.x, s.y/2], count:[2,3])
 
     s = DECK_SIZE.inset(FRAME_KLASS.width + 2.5.cm, FRAME_KLASS.width/2)
     attr_reader front_bolt_holes: repeat(center:DECK_SIZE/2, step:[s.x/3, s.y], count:[4,2])

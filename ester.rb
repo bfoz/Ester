@@ -135,7 +135,6 @@ model :Ester do
         x_coordinates.product(z_coordinates) do |x, z|
             push FRAME_KLASS, length:frame_length.y, origin:[x, frame_length.y/2, z], x:-Z, y:X
         end
-        push FRAME_KLASS, length:frame_length.y, origin:[0, frame_length.y/2, z_coordinates.first], x:-Z, y:X
 
         # Corner brackets
         bracket_z = [[-FRAME_KLASS.height, 1],
