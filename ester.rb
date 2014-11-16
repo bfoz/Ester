@@ -23,6 +23,8 @@ DECK_BORDER_TOP = 7.cm + MakerSlide.width + FRAME_KLASS.width
 
 ACRYLIC_THICKNESS = 6.mm.cm    # The acrylic panels sold at the TechShop are 6mm thick
 PANEL_THICKNESS = 5.2.mm.cm
+PISTON_WALL_THICKNESS = ACRYLIC_THICKNESS
+
 PLATFORM_SIZE = Size[10.cm, 10.cm]
 DUMP_SLOT_WIDTH = 1.cm
 
@@ -43,8 +45,8 @@ ENCLOSURE_LEFT_X = -(LEFT_DECK_BORDER_WIDTH + PLATFORM_SIZE.x/2)
 
 END_ZONE_LENGTH = 10.cm
 
-PLATFORM_SPACING = ACRYLIC_THICKNESS 	# The gap between the two platforms
-PLATFORM_CUTOUT_SIZE = Size[2*PISTON_SIZE.x + PLATFORM_SPACING + 2*ACRYLIC_THICKNESS + DUMP_SLOT_WIDTH, PISTON_SIZE.y + 2*ACRYLIC_THICKNESS]
+PLATFORM_SPACING = PISTON_WALL_THICKNESS 	# The gap between the two platforms
+PLATFORM_CUTOUT_SIZE = Size[2*PISTON_SIZE.x + PLATFORM_SPACING + 2*PISTON_WALL_THICKNESS + DUMP_SLOT_WIDTH, PISTON_SIZE.y + 2*PISTON_WALL_THICKNESS]
 PLATFORM_CUTOUT_CENTER = Point[Size[DECK_BORDER_LEFT, DECK_BORDER_BOTTOM] + PLATFORM_CUTOUT_SIZE/2]
 
 RAIL_POSITION_X = PLATFORM_CUTOUT_SIZE.y/2 + 5.cm
@@ -57,7 +59,7 @@ DECK_SIZE = PLATFORM_CUTOUT_SIZE.outset(top: DECK_BORDER_TOP,
                                         bottom: DECK_BORDER_BOTTOM,
                                         right: DECK_BORDER_RIGHT)
 
-CHAMBER_BOX = Size[PLATFORM_CUTOUT_SIZE.x, PLATFORM_CUTOUT_SIZE.y, BUILD_VOLUME.z + ACRYLIC_THICKNESS]
+CHAMBER_BOX = Size[PLATFORM_CUTOUT_SIZE.x, PLATFORM_CUTOUT_SIZE.y, Z_RAIL_LENGTH]
 
 INTERIOR_DIMENSIONS = Size[CHAMBER_BOX.x + END_ZONE_LENGTH, 40.cm, 40.cm]
 
@@ -71,7 +73,6 @@ require_relative 'enclosure'
 require_relative 'XCarriageAssembly'
 require_relative 'leadscrew'
 require_relative 'ZRailAssembly'
-require_relative 'LBracket'
 require_relative 'VWheelAssembly'
 
 require_relative 'chamber'
@@ -163,17 +164,6 @@ model :Ester do
     translate -TopPanel.piston_cutout_center do
         translate 0, 0, -TopPanel.thickness do
             push TopPanel
-
-            # Piston chamber mounting hardware
-            TopPanel.bracket_bolt_holes.each do |center|
-                s = (center.y <=> TopPanel.piston_cutout_center.y)
-                translate *(-s*Point[LBracket.bottom_hole_center.to_a.reverse]) , 0 do
-                    push LBracket, origin:[*center, 0], x:s*Y, y:s*X
-                    push FlatWasher, origin:[center.x, center.y - s*ChamberSidePanel.length, -1.2.cm], x:X, y:s*Z
-                end
-                push FlatWasher, origin:[*center, TopPanel.length]
-            end
-
         end
         push BottomPanel, origin:[0, 0, -Z_RAIL_LENGTH - BottomPanel.thickness]
 
@@ -208,15 +198,16 @@ model :Ester do
     end
 
     # Piston walls
-    translate 0, 0, -ACRYLIC_THICKNESS do
-        # Chamber walls
+    translate 0, 0, -TopPanel.thickness do
+        translate 0, PISTON_WALL_THICKNESS/2, TopPanel.thickness-ChamberFrontPanel.size.y do
+            seperation = (CHAMBER_BOX.y - PISTON_WALL_THICKNESS)/2
+            push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, seperation, 0], x:X, y:Z
+            push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, -seperation, 0], x:X, y:Z
+        end
         translate 0, -ChamberSidePanel.size.x/2, -ChamberSidePanel.size.y do
-            push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, ChamberSidePanel.size.x, 0], x:X, y:Z
-            push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, ChamberFrontPanel.length, 0], x:X, y:Z
-
             push ChamberSidePanel, origin:[-(PLATFORM_SIZE.x + PLATFORM_SPACING/2 + ChamberSidePanel.length), 0, 0], x:Y, y:Z     # Left
-            push ChamberCenterPanel, origin:[-ChamberCenterPanel.length/2, 0, 0],  x:Y, y:Z     # Center
             push ChamberSidePanel, origin:[PLATFORM_SIZE.x + PLATFORM_SPACING/2, 0, 0], x:Y, y:Z     # Right
         end
+        push ChamberCenterPanel, origin:[-ChamberCenterPanel.length/2, -ChamberCenterPanel.size.x/2, -BUILD_VOLUME.z],  x:Y, y:Z     # Center
     end
 end

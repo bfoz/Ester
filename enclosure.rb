@@ -25,8 +25,6 @@ extrusion :TopPanel do
     s = DECK_SIZE.inset(FRAME_KLASS.width + 2.5.cm, FRAME_KLASS.width/2)
     attr_reader front_bolt_holes: repeat(center:DECK_SIZE/2, step:[s.x/3, s.y], count:[4,2])
 
-    attr_reader bracket_bolt_holes: repeat(center:piston_cutout_center, spacing:[CHAMBER_BOX.x + 2.cm, CHAMBER_BOX.y + 2.5.cm], count:2)
-
     size = DECK_SIZE
 
     length thickness
@@ -74,9 +72,6 @@ extrusion :TopPanel do
             rectangle center:[0, 0], size:[2.cm, 2.mm]
         end
     end
-
-    # Bolt holes for the angle brackets that attach the piston chamber walls
-    bracket_bolt_holes.each {|center| circle center:center, diameter:4.mm }
 
     # Bolt holes for attaching to the side rails
     side_bolt_holes.each {|center| circle center:center, diameter:5.mm.cm }
@@ -137,6 +132,13 @@ extrusion :BottomPanel do
             NEMA17.bolt_holes.each do |x,y|
                 circle center:[x, y], diameter:NEMA17.bolt_hole_diameter.cm
             end
+        end
+
+        # Slots for the chamber side wall tabs
+        repeat step:[2*(PISTON_SIZE.x + PISTON_WALL_THICKNESS), 0], count:2 do
+            rectangle center:[0, 43.75.mm], size:[PISTON_WALL_THICKNESS, 1.25.cm]
+            rectangle center:[0,0], size:[PISTON_WALL_THICKNESS, 2.5.cm]
+            rectangle center:[0, -43.75.mm], size:[PISTON_WALL_THICKNESS, 1.25.cm]
         end
     end
 
