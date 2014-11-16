@@ -2,7 +2,63 @@ require_relative 'motors/NEMA17'
 
 require_relative 'TopRetainer'
 
+ENCLOSURE_BOX = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height + UPPER_ENCLOSURE_HEIGHT]
+
+extrusion :EnclosureFrontPanel do
+    # !@attribute [r] thickness
+    #   @return [Number]    the panel thickness (same as the extrusion length)
+    attr_reader thickness: ENCLOSURE_THICKNESS
+
+    attr_reader size: Size[ENCLOSURE_BOX.x, ENCLOSURE_BOX.z]
+
+    length thickness
+    rectangle size: size
+
+    # Orientation marker
+    translate FRAME_KLASS.width/2, FRAME_KLASS.width/2 do
+        circle diameter:5.mm
+        rectangle origin:[1.cm, 0], size:[1.cm, 1.mm]
+        rectangle origin:[0, 1.cm], size:[1.mm, 1.cm]
+    end
+end
+
+extrusion :EnclosureSidePanel do
+    # !@attribute [r] thickness
+    #   @return [Number]    the panel thickness (same as the extrusion length)
+    attr_reader thickness: ENCLOSURE_THICKNESS
+
+    attr_reader size: Size[ENCLOSURE_BOX.y, ENCLOSURE_BOX.z]
+
+    length thickness
+    rectangle size: size
+
+    # Orientation marker
+    translate FRAME_KLASS.width/2, FRAME_KLASS.width/2 do
+        circle diameter:5.mm
+        rectangle origin:[1.cm, 0], size:[1.cm, 1.mm]
+        rectangle origin:[0, 1.cm], size:[1.mm, 1.cm]
+    end
+end
+
 extrusion :TopPanel do
+    # !@attribute [r] thickness
+    #   @return [Number]    the panel thickness (same as the extrusion length)
+    attr_reader thickness: ENCLOSURE_THICKNESS
+
+    size = DECK_SIZE
+
+    length thickness
+    rectangle size: DECK_SIZE
+
+    # Orientation marker
+    translate FRAME_KLASS.width/2, FRAME_KLASS.width/2 do
+        circle diameter:5.mm
+        rectangle origin:[1.cm, 0], size:[1.cm, 1.mm]
+        rectangle origin:[0, 1.cm], size:[1.mm, 1.cm]
+    end
+end
+
+extrusion :DeckPanel do
     # !@attribute [r] dump_slot_width
     #  @return [Number] the width of the hole for the dump slot
     attr_reader dump_slot_width: 1.cm

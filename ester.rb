@@ -23,6 +23,7 @@ DECK_BORDER_TOP = 7.cm + MakerSlide.width + FRAME_KLASS.width
 
 ACRYLIC_THICKNESS = 6.mm.cm    # The acrylic panels sold at the TechShop are 6mm thick
 PANEL_THICKNESS = 5.2.mm.cm
+ENCLOSURE_THICKNESS = 3.mm.cm   # 1/8"
 PISTON_WALL_THICKNESS = ACRYLIC_THICKNESS
 
 PLATFORM_SIZE = Size[10.cm, 10.cm]
@@ -44,6 +45,7 @@ LEFT_DECK_BORDER_WIDTH = 10.cm
 ENCLOSURE_LEFT_X = -(LEFT_DECK_BORDER_WIDTH + PLATFORM_SIZE.x/2)
 
 END_ZONE_LENGTH = 10.cm
+UPPER_ENCLOSURE_HEIGHT = 15.cm
 
 PLATFORM_SPACING = PISTON_WALL_THICKNESS 	# The gap between the two platforms
 PLATFORM_CUTOUT_SIZE = Size[2*PISTON_SIZE.x + PLATFORM_SPACING + 2*PISTON_WALL_THICKNESS + DUMP_SLOT_WIDTH, PISTON_SIZE.y + 2*PISTON_WALL_THICKNESS]
@@ -113,18 +115,17 @@ model :Ester do
 
     # Extrusion frame
     translate 0, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
-        upper_height = 15.cm
         frame_size = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height]
         frame_spacing = Size[frame_size.x - FRAME_KLASS.width, frame_size.y - FRAME_KLASS.width, frame_size.z]
         frame_length = Size[frame_spacing.x - FRAME_KLASS.width, frame_spacing.y - FRAME_KLASS.width, frame_size.z]
 
         x_coordinates = [-frame_spacing.x/2, frame_spacing.x/2]
         y_coordinates = [-frame_spacing.y/2, frame_spacing.y/2]
-        z_coordinates = [-frame_size.z + FRAME_KLASS.height/2, -FRAME_KLASS.height/2, upper_height - FRAME_KLASS.height/2]
+        z_coordinates = [-frame_size.z + FRAME_KLASS.height/2, -FRAME_KLASS.height/2, UPPER_ENCLOSURE_HEIGHT - FRAME_KLASS.height/2]
 
         # Vertical supports
         x_coordinates.product(y_coordinates) do |x,y|
-            push FRAME_KLASS, length:frame_length.z + upper_height, origin:[x, y, -frame_size.z]
+            push FRAME_KLASS, length:frame_length.z + UPPER_ENCLOSURE_HEIGHT, origin:[x, y, -frame_size.z]
         end
 
         # The front and back rails
@@ -139,8 +140,8 @@ model :Ester do
 
         # Corner brackets
         bracket_z = [[-FRAME_KLASS.height, 1],
-                     [-frame_size.z + FRAME_KLASS.height + TopPanel.length, -1],
-                     [ upper_height - FRAME_KLASS.height, 1]]
+                     [-frame_size.z + FRAME_KLASS.height + DeckPanel.length, -1],
+                     [ UPPER_ENCLOSURE_HEIGHT - FRAME_KLASS.height, 1]]
         x_coordinates.product(y_coordinates).product(bracket_z) do |(x,y),(z,sign)|
             half_width = FRAME_KLASS.width/2
             translate x, y, z do
@@ -161,26 +162,36 @@ model :Ester do
     end
 
     # Enclosure
-    translate -TopPanel.piston_cutout_center do
-        translate 0, 0, -TopPanel.thickness do
-            push TopPanel
+    translate -DeckPanel.piston_cutout_center do
+        push TopPanel, origin:[0, 0, UPPER_ENCLOSURE_HEIGHT - DeckPanel.thickness]
+        translate 0, 0, -DeckPanel.thickness do
+            push DeckPanel
         end
-        push BottomPanel, origin:[0, 0, -Z_RAIL_LENGTH - BottomPanel.thickness]
+
+        translate 0, 0, -Z_RAIL_LENGTH - BottomPanel.thickness do
+            push BottomPanel
+
+            translate 0, 0, -FRAME_KLASS.height do
+                push EnclosureFrontPanel, origin:[0, 0, 0], x:X, y:Z
+                push EnclosureFrontPanel, origin:[0, DECK_SIZE.y + EnclosureFrontPanel.thickness, 0], x:X, y:Z
+
+                push EnclosureSidePanel, origin:[0, DECK_SIZE.y, 0], x:-Y, y:Z
+                push EnclosureSidePanel, origin:[DECK_SIZE.x, 0, 0], x:Y, y:Z
+            end
+        end
 
         # Top deck attachment bolts
-        TopPanel.side_bolt_holes.each do |center|
+        DeckPanel.side_bolt_holes.each do |center|
             push FlatWasher, origin:[*center, 0]
             push M5x12Bolt, origin:[*center, FlatWasher.length], x:X, y:-Y
         end
-        TopPanel.front_bolt_holes.each do |center|
+        DeckPanel.front_bolt_holes.each do |center|
             push FlatWasher, origin:[*center, 0]
             push M5x12Bolt, origin:[*center, FlatWasher.length], x:X, y:-Y
         end
-
-        push BackPanel, origin:[DECK_SIZE.x*2/3, X_RAIL_SPACING + DECK_BORDER_TOP, -Z_RAIL_LENGTH - FRAME_KLASS.width - 0.6.cm], x:-X, y:Z
 
         # Bottom deck attachment bolts
-        translate 0, 0, -Z_RAIL_LENGTH - BottomPanel.length + TopPanel.length do
+        translate 0, 0, -Z_RAIL_LENGTH - BottomPanel.length + DeckPanel.length do
             # Ignore the holes that are for the corner brackets. Those bolts are handled elsewhere.
             min, max = BottomPanel.side_bolt_holes.minmax_by(&:y)
             BottomPanel.side_bolt_holes.each do |center|
@@ -198,8 +209,8 @@ model :Ester do
     end
 
     # Piston walls
-    translate 0, 0, -TopPanel.thickness do
-        translate 0, PISTON_WALL_THICKNESS/2, TopPanel.thickness-ChamberFrontPanel.size.y do
+    translate 0, 0, -DeckPanel.thickness do
+        translate 0, PISTON_WALL_THICKNESS/2, DeckPanel.thickness-ChamberFrontPanel.size.y do
             seperation = (CHAMBER_BOX.y - PISTON_WALL_THICKNESS)/2
             push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, seperation, 0], x:X, y:Z
             push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, -seperation, 0], x:X, y:Z

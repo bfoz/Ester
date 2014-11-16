@@ -11,7 +11,7 @@ extrusion :ChamberFrontPanel do
         right   2.cm
         up      ACRYLIC_THICKNESS + rail_height
         right   CHAMBER_BOX.x
-        right   TopPanel.dump_slot_width    # Extend the rails to cover the dump slot
+        right   DeckPanel.dump_slot_width    # Extend the rails to cover the dump slot
         down    ACRYLIC_THICKNESS + rail_height
         right_to    size.x
 

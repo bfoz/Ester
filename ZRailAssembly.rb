@@ -1,4 +1,4 @@
-require_relative 'enclosure'    # For TopPanel
+require_relative 'enclosure'    # For DeckPanel
 require_relative 'PulleyGT2_20'
 
 require_relative 'TopRetainer'
@@ -263,7 +263,7 @@ model :ZRailAssembly do
         translate 0, y, 0 do
             translate 0, 0, -rail_length do
                 # Threaded rod
-                push Leadscrew, length:rail_length - TopPanel.length
+                push Leadscrew, length:rail_length - DeckPanel.length
 
                 translate 0, 0, BottomRetainer.length do
                     push PulleyGT2_20_8mm, origin:[0, 0, 56.mm]
@@ -280,13 +280,13 @@ model :ZRailAssembly do
 
                 push BottomRetainer
             end
-            push TopRetainer, origin:[0, 0, -TopPanel.thickness - TopRetainer.length]
+            push TopRetainer, origin:[0, 0, -DeckPanel.thickness - TopRetainer.length]
         end
     end
 
     # Piston assembly
     group origin:[0, 0, 0] do
-        translate 0, 0, -TopPanel.thickness do
+        translate 0, 0, -DeckPanel.thickness do
             push PlatformPanel
 
             translate 0, -PlatformPanel.size.y/2, 0 do
