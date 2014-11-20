@@ -38,7 +38,7 @@ Gems
 
 Ester depends on a number of other Ruby gems that in turn depend on a bunch of other stuff. It's all very interesting, if you like that sort of thing. Otherwise, just use your favorite command prompt to run this command:
 
-    bundle install
+    bundle
 
 You can probably get a cup of coffee at this point. If all is proceeding according to plan, Bundler is taking care of an awful lot of stuff so that you don't have to.
 
