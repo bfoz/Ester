@@ -3,6 +3,8 @@ Ester
 
 Ester is a desktop-class [Selective Laser Sintering]() 3D Printer. It's designed to be built by anyone with a modest workshop, and should be able to sinter a variety of materials. For now we're focusing on commonly available polyester powders, with an eye towards moving to nylon in the near future.
 
+![Ester](https://cloud.githubusercontent.com/assets/874862/5143939/4acaaaae-71d0-11e4-96af-adb23f9135f7.jpg)
+
 Procedural Engineering
 ----------------------
 
