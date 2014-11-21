@@ -63,7 +63,7 @@ By now I'm sure you're tired of installing things and are itching to get started
 
 First, we'll need to generate the output files. Go back to your trusty command line window, make sure you're in the newly-cloned project directory, and run:
 
-    rake sketchup
+    bundle exec rake sketchup
 
 You'll need to run that command whenever you make changes to Ester's files, so keep it handy.
 
