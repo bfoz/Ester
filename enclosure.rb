@@ -114,7 +114,7 @@ extrusion :DeckPanel do
 
         repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, piston_cutout_size.y + 4.8.cm], count:[2, 2] do
             # Z-rail press-fit holes
-            TopRetainer.rail_holes.each {|center| circle center:center, diameter:7.9.mm}
+            TopRetainer.bearing_holes.each {|center| circle center:center, diameter:9.9.mm}
 
             # Bolt holes for the Z-axis top retainer plates
             TopRetainer.bolt_holes.each {|center| circle center:center, diameter:TopRetainer.bolt_hole_diameter}

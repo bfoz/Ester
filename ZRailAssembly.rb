@@ -1,5 +1,5 @@
 require_relative 'enclosure'    # For DeckPanel
-require_relative 'PulleyGT2_20'
+require_relative 'sprockets'
 
 require_relative 'TopRetainer'
 
@@ -7,6 +7,11 @@ require_relative 'TopRetainer'
 # Assuming 2mm pitch GT2 belt...
 # distance = (Belt_teeth - Pulley_teeth)
 PULLEY_SPACING = (101 - 20).mm + 1.mm   # Add 1mm for tensioning
+
+# TR10x2 Trapezoidal leadscrew
+extrusion :Leadscrew do
+    circle diameter:10.mm
+end
 
 extrusion :ZCarriagePanel do
     attr_reader height: 4.cm
@@ -39,17 +44,9 @@ extrusion :ZCarriagePanel do
         end
     end
 
-    # Pass-thru for the leadscrew nut
-    hexagon indiameter:13.mm
-
-    # Pas-thrus for the vertical rods
-    [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
-        circle center:[x, 0], diameter:8.5.mm.cm
-    end
-
-    # Holes for the leadscrew nut retainer and lock panels
-    LeadscrewNutLockPanel.holes.each do |x,y|
-        circle center:[x,y], diameter:5.5.mm.cm
+    # Pas-thrus for the leadscrews
+    repeat step:[Z_RAIL_SPACING, 0], count:[2,1] do
+        circle diameter:10.5.mm
     end
 end
 
@@ -113,19 +110,9 @@ extrusion :PistonBoxBottomPanel do
         end
     end
 
-    repeat step:[0, 16.cm], count:[1, 2] do
-        # Pass-thru for the leadscrew nut
-        hexagon indiameter:13.mm
-
-        # Pas-thrus for the vertical rods
-        [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
-            circle center:[x, 0], diameter:8.5.mm.cm
-        end
-
-        # Holes for the leadscrew nut retainer and lock panels
-        LeadscrewNutLockPanel.holes.each do |x,y|
-            circle center:[x,y], diameter:5.5.mm.cm
-        end
+    # Pas-thrus for the leadscrews
+    repeat step:[Z_RAIL_SPACING, 16.cm], count:[2, 2] do
+        circle diameter:10.5.mm
     end
 end
 
@@ -216,39 +203,52 @@ end
 
 model :ZCarriageAssembly do
     push ZCarriagePanel
-
-    # Leadscrew nut
-    push M8HeavyNut, origin:[0, 0, -(M8HeavyNut.length-ZCarriagePanel.length)/2]
-
-    push LeadscrewNutRetainerPanel, origin:[0, 0, 0.4.mm + ZCarriagePanel.length]
-    push LeadscrewNutRetainerPanel, origin:[0, 0, -0.3.mm - LeadscrewNutRetainerPanel.length]
 end
 
 model :ZMotorAssembly do
     push NEMA17
-    push PulleyGT2_20_5mm, origin:[0, 0, NEMA17.body_length + NEMA17.shaft_length - PulleyGT2_20_5mm.length]
+    push Sprocket_GT2_36_5mm, origin:[0, 0, NEMA17.body_length + NEMA17.shaft_length - 5.mm], x:X, y:-Y
+end
+
+# The origin of this part is centered between the leadscrews
+extrusion :BottomRetainerFront do
+    attr_reader rail_spacing: Z_RAIL_SPACING
+
+    length ACRYLIC_THICKNESS
+
+    rectangle origin:[-5.cm, -2.25.cm], size:[10.cm, 4.5.cm]
+
+    # Leadscrew bearing hole
+    repeat step:rail_spacing, count:2 do
+        circle diameter:15.9.mm  # Sized for press fit
+    end
+
+    # Bolt holes
+    repeat step:[rail_spacing, 3.cm], count:2 do
+        circle diameter:5.mm
+    end
 end
 
 # The origin of this part is aligned with the leadscrew center axis
 extrusion :BottomRetainer do
+    attr_reader motor_belt_length: PULLEY_SPACING
+    attr_reader rail_spacing: Z_RAIL_SPACING
+
     length ACRYLIC_THICKNESS
 
     rectangle origin:[-4.cm, -2.25.cm], size:[14.5.cm, 4.5.cm]
 
     # Leadscrew bearing hole
-    circle diameter:15.9.mm  # Sized for press fit
-
-    # Smooth rod holes
-    repeat step:Z_RAIL_SPACING, count:2 do
-        circle diameter:7.9.mm  # Sized for press fit
+    repeat step:rail_spacing, count:2 do
+        circle diameter:15.9.mm  # Sized for press fit
     end
 
     # Bolt holes
-    repeat step:[Z_RAIL_SPACING, 3.cm], count:2 do
+    repeat step:[rail_spacing, 3.cm], count:2 do
         circle diameter:5.mm
     end
 
-    translate PULLEY_SPACING, 0 do
+    translate x:motor_belt_length do
         NEMA17.bolt_holes.each do |x,y|
             circle center:[x, y], diameter:NEMA17.bolt_hole_diameter.cm
         end
@@ -256,32 +256,63 @@ extrusion :BottomRetainer do
 end
 
 model :ZRailAssembly do
-    attr_reader motor_group_y: -(PLATFORM_SIZE.y/2 + 3.cm)
+    attr_reader motor_group_y: PLATFORM_SIZE.y/2 + 3.cm
     attr_reader rail_length: Z_RAIL_LENGTH
 
-    [-motor_group_y, motor_group_y].each do |y|
-        translate 0, y, 0 do
-            translate 0, 0, -rail_length do
-                # Threaded rod
-                push Leadscrew, length:rail_length - DeckPanel.length
-
-                translate 0, 0, BottomRetainer.length do
-                    push PulleyGT2_20_8mm, origin:[0, 0, 56.mm]
-                    push PulleyGT2_36_8mm, origin:[0, 0, 40.mm]
-
-                    push ZMotorAssembly, origin:[PULLEY_SPACING, 0, 0], x:X, y:Y
-                end
-
-                [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
-                    extrude length:rail_length, origin:[x, 0, 0] do
-                        circle diameter:8.mm.cm
-                    end
-                end
-
-                push BottomRetainer
+    # The front side of the assembly
+    translate y:-motor_group_y do
+        translate z:-rail_length do
+            # Front-left screw and sprockets
+            translate x:-Z_RAIL_SPACING/2 do
+                push Sprocket_GT2_36_10mm, origin:[0, 0, 18.mm]
             end
-            push TopRetainer, origin:[0, 0, -DeckPanel.thickness - TopRetainer.length]
+
+            # Front-right screw and sprockets
+            translate x:Z_RAIL_SPACING/2 do
+                push Sprocket_GT2_36_10mm, origin:[0, 0, 18.mm]
+                push Sprocket_GT2_36_10mm, origin:[0, 0, 50.mm], x:X, y:-Y
+            end
+
+            [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
+                push Leadscrew, origin:[x,0,0], length:rail_length - DeckPanel.length
+            end
+
+            push BottomRetainerFront
         end
+        push TopRetainer, origin:[0, 0, -DeckPanel.thickness - TopRetainer.length]
+    end
+
+    # The back side of the assembly
+    translate y:motor_group_y do
+        translate z:-rail_length do
+            translate z:BottomRetainer.length do
+                push ZMotorAssembly, origin:[PULLEY_SPACING, 0, 0], x:X, y:Y
+            end
+
+            # Rear-left sprocket
+            push Sprocket_GT2_36_10mm, origin:[-Z_RAIL_SPACING/2, 0, 34.mm]
+
+            # Rear-right sprockets
+            translate x:Z_RAIL_SPACING/2, z:18.mm do
+                push Sprocket_GT2_36_10mm
+                push Sprocket_GT2_36_10mm, origin:[0, 0, 16.mm]
+                push Sprocket_GT2_36_5mm, origin:[0, 0, 32.mm]
+            end
+
+            [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
+                push Leadscrew, origin:[x,0,0], length:rail_length - DeckPanel.length
+            end
+
+            push BottomRetainer
+        end
+        push TopRetainer, origin:[0, 0, -DeckPanel.thickness - TopRetainer.length]
+
+        translate x:BottomRetainer.motor_belt_length do
+            NEMA17.bolt_holes.each do |x,y|
+                push M3x60Bolt, origin:[x, y, -rail_length - BottomPanel.thickness]
+            end
+        end
+
     end
 
     # Piston assembly
@@ -309,12 +340,6 @@ model :ZRailAssembly do
 
         [-motor_group_y, motor_group_y].each do |y|
             translate 0, y, -PlatformBracket.height - 0.8.mm do
-                # Leadscrew nut
-                push M8HeavyNut, origin:[0, 0, -M8HeavyNut.length + 1.3.mm/2]
-
-                push LeadscrewNutRetainerPanel, origin:[0, 0, 0.8.mm - PistonBoxBottomPanel.length - LeadscrewNutRetainerPanel.length]
-                push LeadscrewNutRetainerPanel, origin:[0, 0, 0.8.mm]
-
                 [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
                     push PillowBlock, origin:[x, 0, 0.8.mm], x:Y, y:-X
                 end

@@ -73,7 +73,6 @@ require_relative 'frame/ExtrusionBracket'
 
 require_relative 'enclosure'
 require_relative 'XCarriageAssembly'
-require_relative 'leadscrew'
 require_relative 'ZRailAssembly'
 require_relative 'VWheelAssembly'
 
