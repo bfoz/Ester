@@ -1,3 +1,5 @@
+require_relative 'PistonAssembly'
+
 extrusion :ChamberFrontPanel do
     attr_reader rail_height: ACRYLIC_THICKNESS
     attr_reader size: Size[CHAMBER_BOX.x + 4.cm, CHAMBER_BOX.z]
@@ -26,6 +28,12 @@ extrusion :ChamberFrontPanel do
     # Slots for the piston side walls
     repeat center:[size.x/2, (size.y-ACRYLIC_THICKNESS)/2 - 6.5.mm], step:[2*PISTON_SIZE.x + 2*PISTON_WALL_THICKNESS, 4.6.cm], count:[2,4] do
         rectangle center:[0,0], size:[length, 2.3.cm]
+    end
+
+    # Cutout for the piston
+    piston_slot_height = BUILD_VOLUME.z + PistonAssembly.flange_height
+    repeat center:[size.x/2, size.y - BUILD_VOLUME.z - piston_slot_height/2], step:[BUILD_VOLUME.x + PLATFORM_SPACING, 0], count:[2,1] do
+        rectangle center:[0,0], size:[PistonAssembly.bracket_width, piston_slot_height]
     end
 end
 
