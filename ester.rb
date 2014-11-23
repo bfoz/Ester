@@ -94,7 +94,7 @@ end
 
 model :Ester do
     translate [0, 0, 1.cm] do
-        translate [-RAIL_LENGTH_X/2, 0, 0] do
+        translate x:-RAIL_LENGTH_X/2 do
             push MakerSlide, length:RAIL_LENGTH_X, origin:[RAIL_LENGTH_X, X_RAIL_BACK_Y, 0], x:-Y, y:Z
             push MakerSlide, length:RAIL_LENGTH_X, origin:[0, X_RAIL_FRONT_Y, 0], x:Y, y:Z
         end
@@ -104,6 +104,19 @@ model :Ester do
         end
 
         push XCarriageAssembly, origin:[0, 0, 2.75.cm/2 + PrecisionShim.length + 1.8.mm.cm]
+    end
+
+    # X-motor
+    translate y:X_RAIL_BACK_Y + (MakerSlide.width + MotorAndPulleyAssembly21.motor_body_width)/2 + 5.mm do
+        translate x:RAIL_LENGTH_X/2 do
+            push PulleyMXL18, origin:[0, 0, 0.5.cm + 17.725.mm]
+        end
+        translate x:-RAIL_LENGTH_X/2 do
+            push MotorAndPulleyAssembly21, origin:[0, 0, 0]
+            NEMA17.bolt_holes.each do |x,y|
+                push M3x30Bolt, origin:[x, y, -DeckPanel.thickness]
+            end
+        end
     end
 
     # Z-rail Assembly group

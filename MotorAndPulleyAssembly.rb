@@ -15,6 +15,7 @@ end
 
 model :MotorAndPulleyAssembly21 do
     attr_reader motor_body_length: NEMA17x21.body_length
+    attr_reader motor_body_width: NEMA17x21.body_width
     attr_reader motor_shaft_length: NEMA17x21.shaft_length
 
     pulley_height = PulleyMXL18.belt_width + 2*PulleyMXL18.flange_width + PulleyMXL18.hub_length

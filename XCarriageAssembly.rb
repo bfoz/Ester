@@ -40,11 +40,6 @@ extrusion :XCarriagePanel do
 
     attr_reader wheel_hole_diameters: [5.mm, 5.mm, 7.mm, 7.mm]
 
-    attr_reader motor_center: Point[panel_origin.x + 4.1.cm, 14.4.cm]
-    attr_reader motor_bolt_holes: repeat(center:motor_center, step:31.mm.cm, count:[2,2])
-    attr_reader pulley_centers: [[motor_center.x - 2.75.cm, 13.9.cm],
-                                 [motor_center.x + 2.75.cm, 13.9.cm]]
-
     attr_reader bracket_center: Point[-1.6872.cm, 0]
     attr_reader bracket_holes: repeat(center:bracket_center, step:[6.75.mm.cm, 4.cm], count:[2,3])
 
@@ -95,17 +90,8 @@ extrusion :XCarriagePanel do
         circle center:center, diameter:diameter
     end
 
-    # The center cutout for the motor
-    circle center: motor_center, diameter:23.mm.cm
-
-    # X-Motor mounting holes
-    motor_bolt_holes.each {|center| circle center:center, diameter:3.mm.cm }
-
     # Y-motor mounting holes
     y_motor_bolt_holes.each {|center| circle center:center, diameter:3.mm }
-
-    # Pulley mounting holes
-    pulley_centers.each {|x,y| circle center:[x,y], diameter:5.5.mm.cm }
 
     # Angle block mounting holes
     bracket_holes.each do |center|
@@ -237,20 +223,6 @@ model :XCarriageAssembly do
 
             XCarriagePanel.wheel_centers.each do |x, y|
                 push VWheelAssembly, origin:[x,y,0]
-            end
-
-            translate XCarriagePanel.motor_center do
-                push MotorAndPulleyAssembly21, origin:[0, 0, MotorAndPulleyAssembly21.motor_body_length + XCarriagePanel.thickness], x:X, y:-Y
-            end
-            XCarriagePanel.motor_bolt_holes.each do |center|
-                push M3x30Bolt, origin:[*center, 0]
-            end
-
-            XCarriagePanel.pulley_centers.each do |x,y|
-                push M5x30Bolt, origin:[x, y, -XCarriagePanel.thickness-1.7.cm]
-                push IdlerWheelKit, origin:[x, y, -XCarriagePanel.thickness-1.7.cm]
-                push M5HexNut, origin:[x, y, -M5HexNut.length]
-                push M5HexNut, origin:[x, y, XCarriagePanel.thickness]
             end
 
             XCarriagePanel.bracket_holes.each do |center|
