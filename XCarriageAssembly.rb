@@ -5,7 +5,6 @@ require_relative 'DualBearingVWheelKit'
 require_relative 'inventables/IdlerWheelKit'
 require_relative 'MakerSlide'
 require_relative 'MotorAndPulleyAssembly'
-require_relative 'PulleyMXL18'
 require_relative 'YCarriageAssembly'
 require_relative 'VWheelAssembly'
 
