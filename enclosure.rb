@@ -96,7 +96,7 @@ extrusion :DeckPanel do
                 size:piston_cutout_size + Size[dump_slot_width, 0]
 
     # Orientation marker
-    translate FRAME_KLASS.width/2, FRAME_KLASS.width/2 do
+    translate FRAME_KLASS.width + 0.5.cm, FRAME_KLASS.width + 0.5.cm do
         circle diameter:5.mm
         rectangle origin:[1.cm, 0], size:[1.cm, 1.mm]
         rectangle origin:[0, 1.cm], size:[1.mm, 1.cm]
