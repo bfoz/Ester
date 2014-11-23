@@ -10,8 +10,25 @@ require_relative 'TopRetainer'
 PULLEY_SPACING = (101 - 20).mm + 1.mm   # Add 1mm for tensioning
 
 # TR10x2 Trapezoidal leadscrew
-extrusion :Leadscrew do
-    circle diameter:10.mm
+model :Leadscrew do
+    attr_reader length:Z_RAIL_LENGTH - DeckPanel.length     # Overall length (including the turned ends)
+    attr_reader machined_length: 5.mm                       # The length of the turned ends
+    attr_reader threaded_length: length - 2*machined_length
+
+    # The bottom machined end
+    extrude length:machined_length do
+        circle diameter:8.mm
+    end
+
+    # The threaded portion
+    extrude length:length, origin:[0,0,machined_length] do
+        circle diameter:10.mm
+    end
+
+    # The top machined end
+    extrude length:machined_length, origin:[0,0,machined_length + threaded_length] do
+        circle diameter:8.mm
+    end
 end
 
 model :ZMotorAssembly do
@@ -83,7 +100,7 @@ model :ZRailAssembly do
             end
 
             [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
-                push Leadscrew, origin:[x,0,0], length:rail_length - DeckPanel.length
+                push Leadscrew, origin:[x,0,0]
             end
 
             push BottomRetainerFront
@@ -109,7 +126,7 @@ model :ZRailAssembly do
             end
 
             [-Z_RAIL_SPACING/2, Z_RAIL_SPACING/2].each do |x|
-                push Leadscrew, origin:[x,0,0], length:rail_length - DeckPanel.length
+                push Leadscrew, origin:[x,0,0]
             end
 
             push BottomRetainer
