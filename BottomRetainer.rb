@@ -12,7 +12,7 @@ extrusion :BottomRetainerFront do
     attr_reader rail_spacing: Z_RAIL_SPACING
     attr_reader thickness:ACRYLIC_THICKNESS
 
-    attr_reader mounting_bolt_holes: repeat(step:[rail_spacing, 4.cm], count:2)
+    attr_reader mounting_bolt_holes: repeat(step:[0, 4.cm], count:2)
 
     length thickness
 
@@ -33,7 +33,7 @@ extrusion :BottomRetainer do
     attr_reader rail_spacing: Z_RAIL_SPACING
     attr_reader thickness:ACRYLIC_THICKNESS
 
-    attr_reader mounting_bolt_holes: repeat(step:[rail_spacing, 4.cm], count:2)
+    attr_reader mounting_bolt_holes: repeat(step:[0, 4.cm], count:2)
     attr_reader mounting_bolt_diameter: 5.mm
 
     length thickness
