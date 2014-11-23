@@ -1,5 +1,6 @@
 require_relative 'motors/NEMA17'
 
+require_relative 'BottomRetainer'
 require_relative 'TopRetainer'
 
 ENCLOSURE_BOX = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height + UPPER_ENCLOSURE_HEIGHT]
@@ -119,10 +120,7 @@ extrusion :DeckPanel do
             circle diameter:5.mm
         end
 
-        repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, piston_cutout_size.y + 4.8.cm], count:[2, 2] do
-            # Z-rail press-fit holes
-            TopRetainer.bearing_holes.each {|center| circle center:center, diameter:9.9.mm}
-
+        repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, Z_RAIL_SPACING_Y], count:[2, 2] do
             # Bolt holes for the Z-axis top retainer plates
             TopRetainer.bolt_holes.each {|center| circle center:center, diameter:TopRetainer.bolt_hole_diameter}
         end
@@ -180,17 +178,15 @@ extrusion :BottomPanel do
     end
 
     translate piston_cutout_center do
-        repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, piston_cutout_size.y + 4.8.cm], count:2 do
+        repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, Z_RAIL_SPACING_Y], count:2 do
             # Z-rail retainer plate mounting holes
-            repeat step:[Z_RAIL_SPACING, 3.cm], count:2 do
-                circle diameter:5.mm
-            end
+            BottomRetainer.mounting_bolt_holes.each {|center| circle center:center, diameter:BottomRetainer.mounting_bolt_diameter}
 
             # Extra bolt holes for putting support rails under the motors
             repeat step:7.cm, count:[1,2] { circle diameter:5.mm }
         end
 
-        repeat step:[2*PISTON_SIZE.x + PLATFORM_SPACING + 6.3.cm, piston_cutout_size.y + 4.8.cm], count:2 do
+        repeat step:[2*PISTON_SIZE.x + PLATFORM_SPACING + 6.3.cm, Z_RAIL_SPACING_Y], count:2 do
             # Motor mounting holes
             NEMA17.bolt_holes.each do |x,y|
                 circle center:[x, y], diameter:NEMA17.bolt_hole_diameter.cm

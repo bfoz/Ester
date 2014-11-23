@@ -68,7 +68,7 @@ end
 extrusion :PistonBoxBottomPanel do
     length ACRYLIC_THICKNESS
 
-    attr_reader height: 20.cm
+    attr_reader height: Z_RAIL_SPACING_Y + 4.cm
     attr_reader width: PLATFORM_BRACKET_SPACING + length
 
     attr_reader repeat_count: 10
@@ -95,25 +95,26 @@ extrusion :PistonBoxBottomPanel do
         end
     end
 
-    # Pas-thrus for the leadscrews
-    repeat step:[Z_RAIL_SPACING, 16.cm], count:[2, 2] do
+    # Pas-throughs for the leadscrews
+    repeat step:[Z_RAIL_SPACING, Z_RAIL_SPACING_Y], count:[2, 2] do
         circle diameter:10.5.mm
     end
 end
 
 extrusion :PlatformBracket do
     attr_reader thickness: ACRYLIC_THICKNESS
-    attr_reader width: PLATFORM_SIZE.y
     attr_reader flange_height: 3.cm
     attr_reader platform_width: PLATFORM_SIZE.y
     attr_reader slot_height: 1.6.cm
-    attr_reader slot_width: 1.cm
-    attr_reader flange_length: slot_width + ZCarriagePanel.height
+    attr_reader flange_length: ZCarriagePanel.height.mm
+    attr_reader rail_spacing: Z_RAIL_SPACING_Y
 
+    attr_reader width: PistonBoxBottomPanel.height
     attr_reader height: BUILD_VOLUME.z + flange_height
 
-    attr_reader carriage_panel_offsets: repeat(center:[platform_width/2, PillowBlock.length + 1.5*ZCarriagePanel.length - height], step:[platform_width+6.cm, 0], count:[2,1])
+    attr_reader carriage_panel_offsets: repeat(center:[platform_width/2, PillowBlock.length + 1.5*ZCarriagePanel.length - height], step:rail_spacing, count:[2,1])
     attr_reader box_panel_offsets: repeat(center:[platform_width/2, 4.25.cm - height], spacing:[8.52.cm, 2.2.cm], count:[2, 1])
+    attr_reader slot_width: (width - 2*flange_length - platform_width)/2
 
     platform_inset = 1.mm
     platform_tab_length = 3.cm
@@ -124,13 +125,13 @@ extrusion :PlatformBracket do
         move_y      ACRYLIC_THICKNESS
         move_x      platform_tab_length
         move_y      -ACRYLIC_THICKNESS
-        right_to    width - 2*platform_inset
+        right_to    platform_width - 2*platform_inset
 
         down        height - flange_height
         right       platform_inset
         right       slot_width
         up          slot_height
-        right       flange_length - slot_width
+        right       flange_length
         down        slot_height
         down        flange_height
 
@@ -141,13 +142,12 @@ extrusion :PlatformBracket do
             i = i + 1
         end
 
-        left_to     -platform_inset
-        left        flange_length
+        left_to     -platform_inset - slot_width - flange_length
 
         up          flange_height
         up          slot_height
 
-        right       flange_length - slot_width
+        right       flange_length
         down        slot_height
         right       slot_width + platform_inset
     end
@@ -168,7 +168,7 @@ extrusion :PlatformBracket do
         end
 
         # Clearance holes for the pillow block bolts
-        repeat center:[platform_center_x, PistonBoxBottomPanel.length + PillowBlock.length/2], step:[platform_width + 6.cm, 0], count:[2,1] do
+        repeat center:[platform_center_x, PistonBoxBottomPanel.length + PillowBlock.length/2], step:rail_spacing, count:[2,1] do
             repeat spacing:[24.mm, 18.mm], count:2 do
                 circle diameter:4.mm
             end
@@ -191,7 +191,7 @@ model :PistonAssembly do
     attr_reader bracket_spacing: PLATFORM_BRACKET_SPACING
     attr_reader bracket_width: bracket_spacing + PlatformBracket.thickness
     attr_reader flange_height: PlatformBracket.flange_height
-    attr_reader rail_spacing: Size[Z_RAIL_SPACING, PLATFORM_SIZE.y + 6.cm]
+    attr_reader rail_spacing: Size[Z_RAIL_SPACING, PLATFORM_SIZE.y + 7.cm]
 
     translate z:-PlatformPanel.thickness do
         push PlatformPanel

@@ -3,7 +3,7 @@
 
 extrusion :PillowBlock do
     attr_reader height: 22.mm.cm
-    attr_reader width: 34.mm.cm
+    attr_reader width: 34.mm
     attr_reader shaft_diameter: 8.mm.cm
 
     length  30.mm.cm
