@@ -19,8 +19,10 @@ end
 
 extrusion :YCarriagePanel do
     attr_reader rail_offset: -4.4.cm
+    attr_reader belt_anchor_holes: repeat(center:[0, rail_offset-(0.4375.inch.cm/2)], step:[1.5.cm,0], count:[2,1])
+    attr_reader thickness: PANEL_THICKNESS
 
-    length PANEL_THICKNESS
+    length thickness
     rectangle origin:[-3.5.cm, -8.5.cm], size:[7.cm, 10.cm]
 
     # Optical pass-thru
@@ -38,7 +40,7 @@ extrusion :YCarriagePanel do
         end
 
         # Belt anchor mounting holes
-        translate 0, -(0.4375.inch.cm/2 + 0.5.cm/2).cm do
+        translate 0, -0.4375.inch.cm/2.cm do
             circle center:[-0.75.cm, 0], diameter:5.mm.cm
             circle center:[0.75.cm, 0], diameter:5.mm.cm
         end
@@ -63,6 +65,10 @@ model :YCarriageAssembly do
     attr_reader rail_offset: panel_klass.rail_offset
 
     push panel_klass
+    panel_klass.belt_anchor_holes.each do |center|
+        push M5x20Bolt, origin:[center.x, center.y, 0]
+        push M5HexNut, origin:[center.x, center.y, panel_klass.thickness]
+    end
 
     translate 0, rail_offset, 0 do
         wheel_bearing_hole_pattern.each do |x, y|

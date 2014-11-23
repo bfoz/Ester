@@ -1,7 +1,7 @@
 require_relative 'fasteners'
+require_relative 'sprockets'
 
 require_relative 'DualBearingVWheelKit'
-require_relative 'inventables/IdlerPulleyBracket'
 require_relative 'inventables/IdlerWheelKit'
 require_relative 'MakerSlide'
 require_relative 'MotorAndPulleyAssembly'
@@ -9,16 +9,50 @@ require_relative 'PulleyMXL18'
 require_relative 'YCarriageAssembly'
 require_relative 'VWheelAssembly'
 
+extrusion :IdlerSprocketBracket do
+    attr_reader mounting_hole: Point[-10.mm.cm, 12.mm.cm]
+    attr_reader thickness:ACRYLIC_THICKNESS
+
+    length thickness
+    rectangle center:[0,0.5.cm], size:[4.cm, 3.cm]
+
+    # Mounting hole
+    circle center:mounting_hole, diameter:5.1.mm.cm
+
+    # Bolt hole
+    circle center:[0,0], diameter:5.1.mm
+end
+
 model :YRailAssembly do
     translate 1.5.cm - RAIL_LENGTH_Y/2, YCarriageAssembly.rail_offset, 0 do
         push MakerSlide, length:RAIL_LENGTH_Y, origin:[0, 0, 0], x:Y, y:Z
         translate [-NEMA17.body_width/2, 0, 0] do
-            push MotorAndPulleyAssembly21, origin:[0, 0, 1.16.cm-MotorAndPulleyAssembly21.motor_body_length]
+            push YMotorAndSprocketAssembly, origin:[0, 0, 1.16.cm-YMotorAndSprocketAssembly.motor_body_length]
         end
 
-        translate [RAIL_LENGTH_Y - 2.cm, 0, 1.cm] do
-            push IdlerPulleyBracket, origin:[0, 0, 0], x:Y, y:-X
-            push PulleyMXL18, origin:[0, 0, 0.5.cm]
+        translate [RAIL_LENGTH_Y + 0.5.cm, 0, 1.cm] do
+            push IdlerSprocketBracket, x:Y, y:-X
+            translate z:IdlerSprocketBracket.thickness do
+                # Mounting bolt
+                translate x:-IdlerSprocketBracket.mounting_hole.y, y:IdlerSprocketBracket.mounting_hole.x do
+                    push FlatWasher
+                    push M5x12Bolt, origin:[0, 0, FlatWasher.length], x:X, y:-Y
+                end
+
+                # Idler sprocket assembly
+                push FlatWasher
+                translate z:FlatWasher.length do
+                    push Sprocket_GT2_20_5mm
+                    translate z:Sprocket_GT2_20_5mm.length do
+                        push FlatWasher
+                        push M5x30Bolt, origin:[0, 0, FlatWasher.length], x:X, y:-Y
+                    end
+                end
+            end
+            translate z:-FlatWasher.length do
+                push FlatWasher
+                push M5HexNut, origin:[0, 0, -M5HexNut.length]
+            end
         end
     end
 
