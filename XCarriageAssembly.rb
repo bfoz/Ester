@@ -61,10 +61,9 @@ end
 
 extrusion :XCarriagePanel do
     attr_reader thickness: ACRYLIC_THICKNESS
+    attr_reader belt_anchor_holes: repeat(center:[-2.cm, X_RAIL_BACK_Y+3.cm], step:[2.cm, 0], count:[2,1])
     attr_reader height: 6.5.cm
     attr_reader width: 9.cm
-    attr_reader flange_width: 6.5.cm
-    attr_reader flange_size: Size[flange_width, 2.cm]
     attr_reader panel_origin: Point[-7.cm, 0]
     attr_reader wheel_offset: -1.cm
     attr_reader wheel_spacing: 10.cm
@@ -83,15 +82,7 @@ extrusion :XCarriagePanel do
     length thickness
 
     polygon origin:panel_origin do
-        up          6.cm
-
-        up          height + 2.cm
-        up          flange_size.y - 6.cm
-
-        up          6.cm - 2.cm
-        move        2.cm, 2.cm
-        right       flange_size.x - 2.cm
-        move        flange_size.y, -flange_size.y
+        up          height + 8.cm
         right_to    width + 3.cm
         down        height + 2.cm
         left        2.cm
@@ -138,6 +129,9 @@ extrusion :XCarriagePanel do
             rectangle center:[0,0], size:[1.cm, ACRYLIC_THICKNESS]
         end
     end
+
+    # Belt anchor holes
+    belt_anchor_holes.each {|center| circle center:center, diameter:5.mm }
 end
 
 POWDER_BLADE_ANGLE = 30.degrees.radians  # Measured from vertical
@@ -254,6 +248,19 @@ model :XCarriageAssembly do
     translate YCarriageAssembly.rail_offset, 0, 0 do
         translate -1.cm, 0, 0 do
             push XCarriagePanel
+
+            XCarriagePanel.belt_anchor_holes.each do |center|
+                translate x:center.x, y:center.y do
+                    translate z:XCarriagePanel.thickness do
+                        push FlatWasher
+                        push M5HexNut, origin:[0,0,FlatWasher.length]
+                    end
+                    translate z:-FlatWasher.length do
+                        push FlatWasher
+                        push M5x20Bolt
+                    end
+                end
+            end
 
             XCarriagePanel.wheel_centers.each do |x, y|
                 push VWheelAssembly, origin:[x,y,0]

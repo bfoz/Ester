@@ -102,6 +102,13 @@ extrusion :DeckPanel do
     end
 
     translate piston_cutout_center do
+        # X-motor mounting holes
+        translate -(RAIL_LENGTH_X + XMotorAndSprocketAssembly.motor_body_width)/2, X_RAIL_BACK_Y + (MakerSlide.width + XMotorAndSprocketAssembly.motor_body_width)/2 - 5.mm do
+            NEMA17.bolt_holes.each do |center|
+                circle center:center, diameter:NEMA17.bolt_hole_diameter
+            end
+        end
+
         # Front X-rail mounting holes
         repeat center:[0, X_RAIL_FRONT_Y], step:[size.x/4, 2.cm], count:[4, 2] do
             circle diameter:5.mm

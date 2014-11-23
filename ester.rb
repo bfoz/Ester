@@ -16,7 +16,7 @@ PISTON_SIZE = Size[10.cm, 10.cm]
 
 FRAME_KLASS = TSlot20x20
 
-DECK_BORDER_LEFT = 10.cm
+DECK_BORDER_LEFT = 15.cm
 DECK_BORDER_BOTTOM = 5.cm + MakerSlide.width + FRAME_KLASS.width
 DECK_BORDER_RIGHT = 10.cm
 DECK_BORDER_TOP = 7.cm + MakerSlide.width + FRAME_KLASS.width
@@ -92,6 +92,27 @@ extrusion :EndstopPlate do
     end
 end
 
+extrusion :XIdlerSprocketBracket do
+    attr_reader mounting_hole: Point[-26.mm, 2.cm]
+    attr_reader thickness:ACRYLIC_THICKNESS
+
+    length thickness
+
+    polygon origin:[-5.6075.cm, -1.cm] do
+        up          4.cm
+        right       4.cm
+        down        2.cm
+        right       2.5.cm
+        down        2.cm
+    end
+
+    # Mounting hole
+    circle center:mounting_hole, diameter:5.1.mm.cm
+
+    # # Bolt hole
+    circle center:[0,0], diameter:5.1.mm
+end
+
 model :Ester do
     translate [0, 0, 1.cm] do
         translate x:-RAIL_LENGTH_X/2 do
@@ -107,12 +128,33 @@ model :Ester do
     end
 
     # X-motor
-    translate y:X_RAIL_BACK_Y + (MakerSlide.width + MotorAndPulleyAssembly21.motor_body_width)/2 + 5.mm do
-        translate x:RAIL_LENGTH_X/2 do
-            push PulleyMXL18, origin:[0, 0, 0.5.cm + 17.725.mm]
+    translate y:X_RAIL_BACK_Y + (MakerSlide.width + XMotorAndSprocketAssembly.motor_body_width)/2 + 5.mm - 1.cm do
+        translate x:RAIL_LENGTH_X/2 + 1.cm, z:2.cm do
+            push XIdlerSprocketBracket, x:Y, y:-X
+            translate z:XIdlerSprocketBracket.thickness do
+                push FlatWasher
+                translate z:FlatWasher.length do
+                    push Sprocket_GT2_20_5mm
+                    translate z:Sprocket_GT2_20_5mm.length do
+                        push FlatWasher
+                        translate z:FlatWasher.length do
+                            push M5x30Bolt, x:X, y:-Y
+                        end
+                    end
+                end
+                # Mounting bolt
+                translate x:-XIdlerSprocketBracket.mounting_hole.y, y:XIdlerSprocketBracket.mounting_hole.x do
+                    push FlatWasher
+                    push M5x12Bolt, origin:[0, 0, FlatWasher.length], x:X, y:-Y
+                end
+            end
+            translate z:-FlatWasher.length do
+                push FlatWasher
+                push M5HexNut, origin:[0, 0, -M5HexNut.height]
+            end
         end
-        translate x:-RAIL_LENGTH_X/2 do
-            push MotorAndPulleyAssembly21, origin:[0, 0, 0]
+        translate x:-(RAIL_LENGTH_X + XMotorAndSprocketAssembly.motor_body_width)/2 do
+            push XMotorAndSprocketAssembly, x:-X, y:-Y
             NEMA17.bolt_holes.each do |x,y|
                 push M3x30Bolt, origin:[x, y, -DeckPanel.thickness]
             end
@@ -126,7 +168,7 @@ model :Ester do
     end
 
     # Extrusion frame
-    translate 0, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
+    translate -(DECK_BORDER_LEFT - DECK_BORDER_RIGHT)/2, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
         frame_size = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height]
         frame_spacing = Size[frame_size.x - FRAME_KLASS.width, frame_size.y - FRAME_KLASS.width, frame_size.z]
         frame_length = Size[frame_spacing.x - FRAME_KLASS.width, frame_spacing.y - FRAME_KLASS.width, frame_size.z]
