@@ -207,25 +207,3 @@ extrusion :BottomPanel do
     # Bolt holes for the front, center, and back rails
     front_bolt_holes.each {|center| circle center:center, diameter:5.mm.cm }
 end
-
-extrusion :BackPanel do
-    length PANEL_THICKNESS
-    size = Size[12.cm, Z_RAIL_LENGTH + FRAME_KLASS.width]
-
-    rectangle size:size
-
-    # Bolt holes for mounting to the frame
-    repeat center:size/2, step:size.inset(2.cm, FRAME_KLASS.width/2), count:2 do
-        circle diameter:5.mm
-    end
-
-    # Motor driver board mounting holes
-    repeat center:[size.x/2, 15.cm], step:10.cm, count:[2,2] do
-        circle diameter:3.mm.cm
-    end
-
-    # Laser driver board mounting holes
-    repeat center:[size.x/2, 5.5.cm], step:[67.75.mm, 72.75.mm], count:2 do
-        circle diameter:2.5.mm
-    end
-end
