@@ -32,10 +32,7 @@ DUMP_SLOT_WIDTH = 1.cm
 RAIL_LENGTH_X = 37.5.cm
 RAIL_LENGTH_Y = 20.cm
 BUILD_VOLUME = Size[10.cm, 10.cm, 5.cm]
-Z_CARRIAGE_HEIGHT = 6.cm
 
-Z_LEADSCREW_LENGTH = 10.cm
-Z_RAIL_LENGTH = 200.mm.cm
 Z_RAIL_SPACING = 6.cm
 Z_RAIL_SPACING_Y = PLATFORM_SIZE.y + 7.cm
 
@@ -62,22 +59,21 @@ DECK_SIZE = PLATFORM_CUTOUT_SIZE.outset(top: DECK_BORDER_TOP,
                                         bottom: DECK_BORDER_BOTTOM,
                                         right: DECK_BORDER_RIGHT)
 
-CHAMBER_BOX = Size[PLATFORM_CUTOUT_SIZE.x, PLATFORM_CUTOUT_SIZE.y, Z_RAIL_LENGTH]
-
-INTERIOR_DIMENSIONS = Size[CHAMBER_BOX.x + END_ZONE_LENGTH, 40.cm, 40.cm]
-
 X = Vector::X
 Y = Vector::Y
 Z = Vector::Z
 
-require_relative 'frame/ExtrusionBracket'
-
-require_relative 'enclosure'
-require_relative 'XCarriageAssembly'
 require_relative 'ZRailAssembly'
-require_relative 'VWheelAssembly'
+
+CHAMBER_BOX = Size[PLATFORM_CUTOUT_SIZE.x, PLATFORM_CUTOUT_SIZE.y, ZRailAssembly.height]
+ENCLOSURE_BOX = Size[DECK_SIZE.x, DECK_SIZE.y, ZRailAssembly.height + BottomPanel.thickness + FRAME_KLASS.height + UPPER_ENCLOSURE_HEIGHT]
 
 require_relative 'chamber'
+require_relative 'enclosure'
+require_relative 'frame/ExtrusionBracket'
+require_relative 'XCarriageAssembly'
+require_relative 'VWheelAssembly'
+
 
 extrusion :EndstopPlate do
     length ACRYLIC_THICKNESS
@@ -163,14 +159,14 @@ model :Ester do
     end
 
     # Z-rail Assembly group
-    group origin:[0, 0, 0] do
+    translate z:-ZRailAssembly.height - DeckPanel.thickness do
         push ZRailAssembly, origin:[-(PLATFORM_SIZE.x + PLATFORM_SPACING)/2, 0, 0], x:-X, y:-Y
         push ZRailAssembly, origin:[(PLATFORM_SIZE.x + PLATFORM_SPACING)/2, 0, 0]
     end
 
     # Extrusion frame
     translate -(DECK_BORDER_LEFT - DECK_BORDER_RIGHT)/2, (DECK_BORDER_TOP - DECK_BORDER_BOTTOM)/2, -ACRYLIC_THICKNESS do
-        frame_size = Size[DECK_SIZE.x, DECK_SIZE.y, Z_RAIL_LENGTH + FRAME_KLASS.height]
+        frame_size = Size[DECK_SIZE.x, DECK_SIZE.y, ZRailAssembly.height + BottomPanel.thickness + FRAME_KLASS.height]
         frame_spacing = Size[frame_size.x - FRAME_KLASS.width, frame_size.y - FRAME_KLASS.width, frame_size.z]
         frame_length = Size[frame_spacing.x - FRAME_KLASS.width, frame_spacing.y - FRAME_KLASS.width, frame_size.z]
 
@@ -216,22 +212,21 @@ model :Ester do
         end
     end
 
-    # Enclosure
     translate -DeckPanel.piston_cutout_center do
         push TopPanel, origin:[0, 0, UPPER_ENCLOSURE_HEIGHT - DeckPanel.thickness]
-        translate 0, 0, -DeckPanel.thickness do
+        translate z:-DeckPanel.thickness do
             push DeckPanel
-        end
+            translate z:-ZRailAssembly.height - BottomPanel.thickness do
+                push BottomPanel
 
-        translate 0, 0, -Z_RAIL_LENGTH - BottomPanel.thickness do
-            push BottomPanel
+                # Enclosure
+                translate z:-FRAME_KLASS.height do
+                    push EnclosureFrontPanel, x:X, y:Z
+                    push EnclosureFrontPanel, origin:[0, DECK_SIZE.y + EnclosureFrontPanel.thickness, 0], x:X, y:Z
 
-            translate 0, 0, -FRAME_KLASS.height do
-                push EnclosureFrontPanel, origin:[0, 0, 0], x:X, y:Z
-                push EnclosureFrontPanel, origin:[0, DECK_SIZE.y + EnclosureFrontPanel.thickness, 0], x:X, y:Z
-
-                push EnclosureSidePanel, origin:[0, DECK_SIZE.y, 0], x:-Y, y:Z
-                push EnclosureSidePanel, origin:[DECK_SIZE.x, 0, 0], x:Y, y:Z
+                    push EnclosureSidePanel, origin:[0, DECK_SIZE.y, 0], x:-Y, y:Z
+                    push EnclosureSidePanel, origin:[DECK_SIZE.x, 0, 0], x:Y, y:Z
+                end
             end
         end
 
@@ -246,7 +241,7 @@ model :Ester do
         end
 
         # Bottom deck attachment bolts
-        translate 0, 0, -Z_RAIL_LENGTH - BottomPanel.length + DeckPanel.length do
+        translate z:-ZRailAssembly.height - BottomPanel.length do
             # Ignore the holes that are for the corner brackets. Those bolts are handled elsewhere.
             min, max = BottomPanel.side_bolt_holes.minmax_by(&:y)
             BottomPanel.side_bolt_holes.each do |center|
@@ -265,12 +260,12 @@ model :Ester do
 
     # Piston walls
     translate 0, 0, -DeckPanel.thickness do
-        translate 0, PISTON_WALL_THICKNESS/2, DeckPanel.thickness-ChamberFrontPanel.size.y do
+        translate 0, PISTON_WALL_THICKNESS/2, -ZRailAssembly.height do
             seperation = (CHAMBER_BOX.y - PISTON_WALL_THICKNESS)/2
             push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, seperation, 0], x:X, y:Z
             push ChamberFrontPanel, origin:[-ChamberFrontPanel.size.x/2, -seperation, 0], x:X, y:Z
         end
-        translate 0, -ChamberSidePanel.size.x/2, -ChamberSidePanel.size.y do
+        translate 0, -ChamberSidePanel.size.x/2, -ZRailAssembly.height - BottomPanel.thickness do
             push ChamberSidePanel, origin:[-(PLATFORM_SIZE.x + PLATFORM_SPACING/2 + ChamberSidePanel.length), 0, 0], x:Y, y:Z     # Left
             push ChamberSidePanel, origin:[PLATFORM_SIZE.x + PLATFORM_SPACING/2, 0, 0], x:Y, y:Z     # Right
         end

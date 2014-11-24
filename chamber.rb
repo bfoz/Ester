@@ -8,7 +8,7 @@ extrusion :ChamberFrontPanel do
     length thickness
 
     polygon do
-        up      size.y - ACRYLIC_THICKNESS
+        up      size.y
 
         right   2.cm
         up      ACRYLIC_THICKNESS + rail_height
@@ -17,17 +17,17 @@ extrusion :ChamberFrontPanel do
         down    ACRYLIC_THICKNESS + rail_height
         right_to    size.x
 
-        down    size.y - ACRYLIC_THICKNESS
+        down    size.y
     end
 
     # Slots for the piston center wall
-    repeat center:[size.x/2, size.y - BUILD_VOLUME.z/2 - 4.169.mm - ACRYLIC_THICKNESS], step:[0, 1.667.cm], count:[1,3] do
+    repeat center:[size.x/2, size.y - BUILD_VOLUME.z/2 - 4.165.mm], step:[0, 1.667.cm], count:[1,3] do
         rectangle center:[0,0], size:[length, 0.833.cm]
     end
 
     # Slots for the piston side walls
-    repeat center:[size.x/2, (size.y-ACRYLIC_THICKNESS)/2 - 6.5.mm], step:[2*PISTON_SIZE.x + 2*PISTON_WALL_THICKNESS, 4.6.cm], count:[2,4] do
-        rectangle center:[0,0], size:[length, 2.3.cm]
+    repeat center:[size.x/2, (size.y-rail_height)/2 - 3.875.mm], step:[2*PISTON_SIZE.x + 2*PISTON_WALL_THICKNESS, 4.75.cm], count:[2,4] do
+        rectangle center:[0,0], size:[length, 2.375.cm]
     end
 
     # Cutout for the piston
@@ -38,7 +38,7 @@ extrusion :ChamberFrontPanel do
 end
 
 extrusion :ChamberSidePanel do
-    attr_reader size: Size[PLATFORM_SIZE.y + 2*ChamberFrontPanel.thickness, CHAMBER_BOX.z]
+    attr_reader size: Size[PLATFORM_SIZE.y + 2*ChamberFrontPanel.thickness, CHAMBER_BOX.z.cm + DeckPanel.thickness]
 
     length PISTON_WALL_THICKNESS
 
@@ -82,8 +82,7 @@ extrusion :ChamberSidePanel do
 end
 
 extrusion :ChamberCenterPanel do
-    attr_reader top_panel_thickness: ACRYLIC_THICKNESS
-    attr_reader tab_height:top_panel_thickness - 2.mm.cm
+    attr_reader tab_height:DeckPanel.thickness - 2.mm.cm
     attr_reader size: Size[PLATFORM_SIZE.y + 2*ChamberFrontPanel.thickness, BUILD_VOLUME.z]
 
     length PISTON_WALL_THICKNESS
@@ -98,7 +97,7 @@ extrusion :ChamberCenterPanel do
             forward step/2
         end
 
-        right   ChamberFrontPanel.length
+        right   ChamberFrontPanel.thickness
         up      tab_height
         right   PLATFORM_SIZE.y
         down    tab_height

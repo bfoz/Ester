@@ -1,3 +1,5 @@
+require_relative 'PillowBlock'
+
 extrusion :ZCarriagePanel do
     attr_reader height: 4.cm
     attr_reader width: PLATFORM_BRACKET_SPACING + ACRYLIC_THICKNESS
@@ -121,7 +123,7 @@ extrusion :PlatformBracket do
 
     length thickness
     polygon origin:[platform_inset, 0] do
-        right       (platform_width - platform_tab_length)/2 - platform_inset
+        right       (platform_width - platform_tab_length)/2 - platform_inset.cm
         move_y      ACRYLIC_THICKNESS
         move_x      platform_tab_length
         move_y      -ACRYLIC_THICKNESS
@@ -192,6 +194,8 @@ model :PistonAssembly do
     attr_reader bracket_width: bracket_spacing + PlatformBracket.thickness
     attr_reader flange_height: PlatformBracket.flange_height
     attr_reader rail_spacing: Size[Z_RAIL_SPACING, PLATFORM_SIZE.y + 7.cm]
+
+    attr_reader height: PlatformBracket.height
 
     translate z:-PlatformPanel.thickness do
         push PlatformPanel
