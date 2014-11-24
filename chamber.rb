@@ -26,13 +26,18 @@ extrusion :ChamberFrontPanel do
     end
 
     # Slots for the piston side walls
-    repeat center:[size.x/2, (size.y-rail_height)/2 - 3.875.mm], step:[2*PISTON_SIZE.x + 2*PISTON_WALL_THICKNESS, 4.75.cm], count:[2,4] do
-        rectangle center:[0,0], size:[length, 2.375.cm]
+    repeat center:[size.x/2, (size.y-rail_height)/2 - 3.375.mm], step:[2*PISTON_SIZE.x + 2*PISTON_WALL_THICKNESS, 4.55.cm], count:[2,4] do
+        rectangle center:[0,0], size:[length, 2.275.cm]
+    end
+
+    # Slots for the belts that connect the front and rear leadscrews
+    repeat center:[size.x/2, 2.cm], step:[PISTON_SIZE.x + PISTON_WALL_THICKNESS, 0], count:2 do
+        rectangle center:[-Z_RAIL_SPACING/2, 0], size:[3.cm, 1.cm]
     end
 
     # Cutout for the piston
     piston_slot_height = BUILD_VOLUME.z + PistonAssembly.flange_height
-    repeat center:[size.x/2, size.y - BUILD_VOLUME.z - piston_slot_height/2], step:[BUILD_VOLUME.x + PLATFORM_SPACING, 0], count:[2,1] do
+    repeat center:[size.x/2, size.y - PistonAssembly.height + PistonAssembly.flange_height - piston_slot_height/2], step:[BUILD_VOLUME.x + PLATFORM_SPACING, 0], count:[2,1] do
         rectangle center:[0,0], size:[PistonAssembly.bracket_width, piston_slot_height]
     end
 end

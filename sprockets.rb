@@ -45,6 +45,9 @@ model :Sprocket_GT2_36_5mm do
     attr_reader hub_diameter: 14.mm
     attr_reader hub_length: length - 2*flange_thickness - belt_width
 
+    attr_reader belt_bottom: hub_length + flange_thickness
+    attr_reader belt_top: belt_bottom + belt_width
+
     # Hub
     extrude length:hub_length do
 	annulus inner_diameter:bore_diameter, diameter:hub_diameter
@@ -80,6 +83,9 @@ model :Sprocket_GT2_36_10mm do
     attr_reader flange_thickness: 1.5.mm
     attr_reader hub_diameter: 14.mm
     attr_reader hub_length: length - 2*flange_thickness - belt_width
+
+    attr_reader belt_bottom: hub_length + flange_thickness
+    attr_reader belt_top: belt_bottom + belt_width
 
     # Hub
     extrude length:hub_length do

@@ -7,18 +7,12 @@ require_relative 'sprockets'
 require_relative 'BottomRetainer'
 require_relative 'PistonAssembly'
 require_relative 'TopRetainer'
-
-model :ZMotorAssembly do
-    attr_reader sprocket_top: 61.mm     # Measured in SketchUp
-
-    push NEMA17
-    push Sprocket_GT2_36_5mm, origin:[0, 0, NEMA17.body_length + NEMA17.shaft_length - 5.mm], x:X, y:-Y
-end
+require_relative 'ZMotorAssembly'
 
 # TR10x2 Trapezoidal leadscrew
 model :Leadscrew do
     attr_reader machined_length: 5.mm                       # The length of the turned ends
-    attr_reader threaded_length: PistonAssembly.height + BUILD_VOLUME.z + ZMotorAssembly.sprocket_top - TopRetainer.thickness
+    attr_reader threaded_length: PistonAssembly.height + (BUILD_VOLUME.z - TopRetainer.thickness) + 2.cm
     attr_reader length:threaded_length + 2*machined_length  # Overall length (including the turned ends)
 
     # The bottom machined end
@@ -42,23 +36,26 @@ end
 model :ZRailAssembly do
     attr_reader height: Leadscrew.threaded_length + 2*FlangedBearing.flange_thickness + TopRetainer.thickness + BottomRetainer.thickness
     attr_reader rail_spacing: Size[Z_RAIL_SPACING, PLATFORM_SIZE.y + 7.cm]
+    attr_reader motor_center: Point[-Z_RAIL_SPACING/2, rail_spacing.y/2+TopRetainerBack.motor_belt_length]
 
     # The front side of the assembly
     translate y:-rail_spacing.y/2 do
-        # Front-left screw and sprockets
-        translate x:-rail_spacing.x/2 do
-            push Sprocket_GT2_36_10mm, origin:[0, 0, 18.mm]
+        # Front-left sprocket (connects to the rear-left sprocket)
+        push Sprocket_GT2_36_10mm, origin:[-rail_spacing.x/2, 0, BottomRetainer.thickness + FlangedBearing.flange_thickness + 1.mm]
+
+        translate z:height - ZMotorAssembly.belt_bottom + Sprocket_GT2_36_10mm.belt_bottom do
+            # Front-left sprocket
+            push Sprocket_GT2_36_10mm, origin:[-rail_spacing.x/2, 0, Sprocket_GT2_36_10mm.length]
+
+            # The front sprockets connecting the two front leadscrews to each other
+            translate x:rail_spacing.x/2 do
+                push Sprocket_GT2_36_10mm, origin:[0, 0, Sprocket_GT2_36_10mm.length]
+            end
         end
 
-        # Front-right screw and sprockets
-        translate x:rail_spacing.x/2 do
-            push Sprocket_GT2_36_10mm, origin:[0, 0, 18.mm]
-            push Sprocket_GT2_36_10mm, origin:[0, 0, 50.mm], x:X, y:-Y
-        end
-
-        push BottomRetainerFront
-        BottomRetainerFront.mounting_bolt_holes.each do |center|
-            push M5x16Bolt, origin:[center.x, center.y, BottomRetainerFront.thickness], x:X, y:-Y
+        push BottomRetainer
+        BottomRetainer.mounting_bolt_holes.each do |center|
+            push M5x16Bolt, origin:[center.x, center.y, BottomRetainer.thickness], x:X, y:-Y
             push M5HexNut, origin:[center.x, center.y, -BottomPanel.thickness - M5HexNut.height]
         end
 
@@ -83,18 +80,29 @@ model :ZRailAssembly do
 
     # The back side of the assembly
     translate y:rail_spacing.y/2 do
-        translate z:BottomRetainer.length do
-            push ZMotorAssembly, origin:[BottomRetainer.motor_belt_length, 0, 0], x:X, y:Y
+        translate z:height do
+            translate -Z_RAIL_SPACING/2, TopRetainerBack.motor_belt_length, 0 do
+                push ZMotorAssembly, origin:[0, 0, -TopRetainerBack.thickness], x:-X, y:Y
+                NEMA17.bolt_holes.each do |x,y|
+                    push M3x60Bolt, origin:[x, y, DeckPanel.thickness], x:X, y:-Y
+                end
+            end
         end
 
-        # Rear-left sprocket
-        push Sprocket_GT2_36_10mm, origin:[-rail_spacing.x/2, 0, 34.mm]
-
-        # Rear-right sprockets
-        translate x:rail_spacing.x/2, z:18.mm do
+        # Left-rear sprocket (connects to the front left sprocket)
+        translate x:-rail_spacing.x/2, z:BottomRetainer.thickness + FlangedBearing.flange_thickness + 1.mm do
             push Sprocket_GT2_36_10mm
-            push Sprocket_GT2_36_10mm, origin:[0, 0, 16.mm]
-            push Sprocket_GT2_36_5mm, origin:[0, 0, 32.mm]
+        end
+
+        translate z:height - ZMotorAssembly.belt_bottom + Sprocket_GT2_36_10mm.belt_bottom do
+            # Rear-left sprocket that connects to the motor
+            push Sprocket_GT2_36_10mm, origin:[-rail_spacing.x/2, 0, -TopRetainerBack.thickness], x:X, y:-Y
+
+            # The rear sprockets connecting the two rear leadscrews to each other
+            translate z:Sprocket_GT2_36_10mm.length do
+                push Sprocket_GT2_36_10mm, origin:[-rail_spacing.x/2, 0, 0]
+                push Sprocket_GT2_36_10mm, origin:[rail_spacing.x/2, 0, 0]
+            end
         end
 
         push BottomRetainer
@@ -111,7 +119,7 @@ model :ZRailAssembly do
             end
 
             translate z:Leadscrew.threaded_length + FlangedBearing.flange_thickness do
-                push TopRetainer
+                push TopRetainerBack
                 TopRetainer.bolt_holes.each do |center|
                     push M5x16Bolt, origin:[center.x, center.y, 0]
                     if center.y < 0
@@ -120,13 +128,6 @@ model :ZRailAssembly do
                 end
             end
         end
-
-        translate x:BottomRetainer.motor_belt_length do
-            NEMA17.bolt_holes.each do |x,y|
-                push M3x60Bolt, origin:[x, y, -BottomPanel.thickness]
-            end
-        end
-
     end
 
     # Piston assembly

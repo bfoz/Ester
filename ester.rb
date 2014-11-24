@@ -19,7 +19,7 @@ FRAME_KLASS = TSlot20x20
 DECK_BORDER_LEFT = 15.cm
 DECK_BORDER_BOTTOM = 5.cm + MakerSlide.width + FRAME_KLASS.width
 DECK_BORDER_RIGHT = 10.cm
-DECK_BORDER_TOP = 7.cm + MakerSlide.width + FRAME_KLASS.width
+DECK_BORDER_TOP = 7.5.cm + MakerSlide.width + FRAME_KLASS.width
 
 ACRYLIC_THICKNESS = 6.mm.cm    # The acrylic panels sold at the TechShop are 6mm thick
 PANEL_THICKNESS = 5.2.mm.cm
@@ -160,7 +160,7 @@ model :Ester do
 
     # Z-rail Assembly group
     translate z:-ZRailAssembly.height - DeckPanel.thickness do
-        push ZRailAssembly, origin:[-(PLATFORM_SIZE.x + PLATFORM_SPACING)/2, 0, 0], x:-X, y:-Y
+        push ZRailAssembly, origin:[-(PLATFORM_SIZE.x + PLATFORM_SPACING)/2, 0, 0]
         push ZRailAssembly, origin:[(PLATFORM_SIZE.x + PLATFORM_SPACING)/2, 0, 0]
     end
 

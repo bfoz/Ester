@@ -67,6 +67,15 @@ extrusion :DeckPanel do
             TopRetainer.bolt_holes.each {|center| circle center:center, diameter:TopRetainer.bolt_hole_diameter}
         end
 
+        # Bolt holes for the Z-motors
+        repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, 0], count:2 do
+            translate -Z_RAIL_SPACING/2, (PLATFORM_SIZE.y + 7.cm)/2+TopRetainerBack.motor_belt_length do
+                NEMA17.bolt_holes.each do |center|
+                    circle center:center, diameter:NEMA17.bolt_hole_diameter
+                end
+            end
+        end
+
         # Rastered center-line
         repeat spacing:[0, piston_cutout_size.y + 3.cm], count:2 do
             rectangle center:[0, 0], size:[2.mm, 2.cm]

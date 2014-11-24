@@ -39,17 +39,10 @@ extrusion :BottomPanel do
     translate piston_cutout_center do
         repeat step:[PISTON_SIZE.x + PLATFORM_SPACING, Z_RAIL_SPACING_Y], count:2 do
             # Z-rail retainer plate mounting holes
-            BottomRetainer.mounting_bolt_holes.each {|center| circle center:center, diameter:BottomRetainer.mounting_bolt_diameter}
+            BottomRetainer.mounting_bolt_holes.each {|center| circle center:center, diameter:BottomRetainer.mounting_bolt_diameter }
 
             # Extra bolt holes for putting support rails under the motors
             repeat step:7.cm, count:[1,2] { circle diameter:5.mm }
-        end
-
-        repeat step:[2*PISTON_SIZE.x + PLATFORM_SPACING + 6.3.cm, Z_RAIL_SPACING_Y], count:2 do
-            # Motor mounting holes
-            NEMA17.bolt_holes.each do |x,y|
-                circle center:[x, y], diameter:NEMA17.bolt_hole_diameter.cm
-            end
         end
 
         # Slots for the chamber side wall tabs

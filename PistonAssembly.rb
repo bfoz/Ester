@@ -1,4 +1,5 @@
 require_relative 'PillowBlock'
+require_relative 'ZMotorAssembly'
 
 extrusion :ZCarriagePanel do
     attr_reader height: 4.cm
@@ -105,14 +106,19 @@ end
 
 extrusion :PlatformBracket do
     attr_reader thickness: ACRYLIC_THICKNESS
-    attr_reader flange_height: 3.cm
+    attr_reader flange_height: 4.6.cm
     attr_reader platform_width: PLATFORM_SIZE.y
-    attr_reader slot_height: 1.6.cm
+    attr_reader slot_height: 0
     attr_reader flange_length: ZCarriagePanel.height.mm
     attr_reader rail_spacing: Z_RAIL_SPACING_Y
 
     attr_reader width: PistonBoxBottomPanel.height
-    attr_reader height: BUILD_VOLUME.z + flange_height
+
+    min_height = BUILD_VOLUME.z + flange_height
+    if (ZMotorAssembly.sprocket_top + TopRetainer.thickness) > BUILD_VOLUME.z
+        min_height += ZMotorAssembly.sprocket_top.cm + TopRetainer.thickness - BUILD_VOLUME.z.cm
+    end
+    attr_reader height: min_height
 
     attr_reader carriage_panel_offsets: repeat(center:[platform_width/2, PillowBlock.length + 1.5*ZCarriagePanel.length - height], step:rail_spacing, count:[2,1])
     attr_reader box_panel_offsets: repeat(center:[platform_width/2, 4.25.cm - height], spacing:[8.52.cm, 2.2.cm], count:[2, 1])
