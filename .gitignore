@@ -1,4 +1,6 @@
+.bundle
 build/
+path/
 scripts/
 *.skp
 *.stl
