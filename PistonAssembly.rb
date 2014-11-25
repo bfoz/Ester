@@ -1,5 +1,8 @@
-require_relative 'PillowBlock'
+require_relative 'LeadscrewNutBlock'
 require_relative 'ZMotorAssembly'
+
+PLATFORM_BRACKET_THICKNESS = ACRYLIC_THICKNESS
+PLATFORM_BRACKET_SPACING = Z_RAIL_SPACING + LeadscrewNutBlock.height + PLATFORM_BRACKET_THICKNESS
 
 extrusion :ZCarriagePanel do
     attr_reader height: 4.cm
@@ -105,8 +108,8 @@ extrusion :PistonBoxBottomPanel do
 end
 
 extrusion :PlatformBracket do
-    attr_reader thickness: ACRYLIC_THICKNESS
-    attr_reader flange_height: 4.6.cm
+    attr_reader thickness: PLATFORM_BRACKET_THICKNESS
+    attr_reader flange_height: 3.6.cm
     attr_reader platform_width: PLATFORM_SIZE.y
     attr_reader slot_height: 0
     attr_reader flange_length: ZCarriagePanel.height.mm
@@ -120,7 +123,7 @@ extrusion :PlatformBracket do
     end
     attr_reader height: min_height
 
-    attr_reader carriage_panel_offsets: repeat(center:[platform_width/2, PillowBlock.length + 1.5*ZCarriagePanel.length - height], step:rail_spacing, count:[2,1])
+    attr_reader carriage_panel_offsets: repeat(center:[platform_width/2, LeadscrewNutBlock.length + 1.5*ZCarriagePanel.length - height], step:rail_spacing, count:[2,1])
     attr_reader box_panel_offsets: repeat(center:[platform_width/2, 4.25.cm - height], spacing:[8.52.cm, 2.2.cm], count:[2, 1])
     attr_reader slot_width: (width - 2*flange_length - platform_width)/2
 
@@ -175,11 +178,9 @@ extrusion :PlatformBracket do
             rectangle center:[0,0], size:[PlatformBracketBoxPanel.length, PlatformBracketBoxPanel.slot_length]
         end
 
-        # Clearance holes for the pillow block bolts
-        repeat center:[platform_center_x, PistonBoxBottomPanel.length + PillowBlock.length/2], step:rail_spacing, count:[2,1] do
-            repeat spacing:[24.mm, 18.mm], count:2 do
-                circle diameter:4.mm
-            end
+        # Clearance holes for the leadscrew nut block bolts
+        repeat center:[platform_center_x, PistonBoxBottomPanel.length + LeadscrewNutBlock.length/2], step:rail_spacing, count:[2,1] do
+            LeadscrewNutBlock.bolt_holes.each {|center| circle center:center, diameter:LeadscrewNutBlock.bolt_hole_diameter }
         end
     end
 end
@@ -227,7 +228,7 @@ model :PistonAssembly do
     translate z:-PlatformBracket.height - 0.8.mm do
         [-rail_spacing.y/2, rail_spacing.y/2].each do |y|
             [-rail_spacing.x/2, rail_spacing.x/2].each do |x|
-                push PillowBlock, origin:[x, y, 0.8.mm], x:Y, y:-X
+                push LeadscrewNutBlock, origin:[x, y, 0.8.mm], x:Y, y:-X
             end
         end
     end
