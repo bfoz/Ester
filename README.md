@@ -1,6 +1,8 @@
 Ester
 =====
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bfoz/Ester?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 Ester is a desktop-class [Selective Laser Sintering]() 3D Printer. It's designed to be built by anyone with a modest workshop, and should be able to sinter a variety of materials. For now we're focusing on commonly available polyester powders, with an eye towards moving to nylon in the near future.
 
 ![Ester](https://cloud.githubusercontent.com/assets/874862/5143939/4acaaaae-71d0-11e4-96af-adb23f9135f7.jpg)
