@@ -26,11 +26,11 @@ extrusion :MakerSlide do
 	start_at [right, top]	# Upper right corner
 
 	# Rail on the +X side
-	move_y  2.5
-	move_x  0.8
-	move    [ 2.2, -2.5]	# Peak edge
-	move    [-2.2, -2.5]
-	move_x  -0.8
+	move_y  2.5.mm
+	move_x  0.8.mm
+	move    [ 2.2.mm, -2.5.mm]	# Peak edge
+	move    [-2.2.mm, -2.5.mm]
+	move_x  -0.8.mm
 
 	# Opening on far +X side (facing +X)
 	vertical_to 3.mm	# Upper corner of the opening
@@ -47,7 +47,7 @@ extrusion :MakerSlide do
 	move_to [ width/2, -height/2]	# Lower right corner
 
 	# Opening in the X,-Y quadrant, facing -Y
-	move [-7, 0]
+	move [-7.mm, 0]
 	move [0, wall_thickness]
 	move [pocket_lip, 0]
 	move [0, pocket_sidewall]
@@ -86,15 +86,15 @@ extrusion :MakerSlide do
 
 	# Rail on -X side
 	vertical_to top - 2.5
-	move [-0.8, 0]
-	move [-2.2, 2.5]
-	move [2.2, 2.5]
-	move [0.8, 0]
+	move [-0.8.mm, 0]
+	move [-2.2.mm, 2.5.mm]
+	move [2.2.mm, 2.5.mm]
+	move [0.8.mm, 0]
 
 	move_to [-width/2,   height/2]	# Upper left corner
 
 	# Opening in the -X,-Y quadrant, facing +Y
-	move [7, 0]
+	move [7.mm, 0]
 	move [0, -wall_thickness]
 	move [-pocket_lip, 0]
 	move [0, -pocket_sidewall]
@@ -109,26 +109,26 @@ extrusion :MakerSlide do
     central_top_width = 5.0.mm
     polygon do
 	start_at	[central_top_width/2, top - wall_thickness]
-	move_y	-1.5
+	move_y	-1.5.mm
 	move_to	[6.mm, pocket_bottom_width/2]
 	move_y	-pocket_bottom_width
 	move_to	[central_top_width/2, bottom + wall_thickness + 1.5]
-	move_y	-1.5
+	move_y	-1.5.mm
 
 	move_x	-central_top_width
-	move_y	1.5
+	move_y	1.5.mm
 	move_to	[-6.mm, -pocket_bottom_width/2]
 	move_y	pocket_bottom_width
 	move_to	[-central_top_width/2, top - wall_thickness - 1.5]
-	move_y	1.5
+	move_y	1.5.mm
     end
 
     polygon do
-	start_at	[10 + pocket_width/2, top - wall_thickness]
+	start_at	[10.mm + pocket_width/2, top - wall_thickness]
 	move_y	-pocket_sidewall
-	move_to	[10 + pocket_bottom_width/2, top - pocket_depth]
+	move_to	[10.mm + pocket_bottom_width/2, top - pocket_depth]
 	move_x	-pocket_bottom_width
-	move_to	[10 - pocket_width/2, top - wall_thickness - pocket_sidewall]
+	move_to	[10.mm - pocket_width/2, top - wall_thickness - pocket_sidewall]
 	move_y	pocket_sidewall
     end
 
