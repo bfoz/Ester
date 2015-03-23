@@ -89,5 +89,5 @@ If you have any problems, feel free to [ask for help](bfosdick@gmail.com).
 License
 =======
 
-Copyright 2014 by [Brandon Fosdick](bfoz@bfoz.net) and released under the [BSD license](http://opensource.org/licenses/BSD-2-Clause).
+Copyright 2014-2015 by [Brandon Fosdick](bfoz@bfoz.net) and released under the [BSD license](http://opensource.org/licenses/BSD-2-Clause).
 
