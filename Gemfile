@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'engineering', '>= 0.3'
+gem 'engineering', '~> 0.4'
 gem 'fasteners', '~> 0.1'
 gem 'model', github: 'bfoz/model'
 gem 'optical'
